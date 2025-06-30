@@ -18,8 +18,18 @@ const NewsList = lazy(() => import("@/pages/news/news-list"));
 
 // Loading component
 const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+  <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 min-w-0 overflow-visible">
+    <span
+      className="inline-block w-auto whitespace-nowrap text-center text-4xl md:text-6xl font-bold mb-8 pb-36 leading-normal bg-gradient-to-r from-black via-white to-black bg-clip-text text-transparent animate-gradient-move"
+      style={{
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        opacity: 0.99,
+        textShadow: "0 1px 1px rgba(0,0,0,0.01)"
+      }}
+    >
+      Trendy Topic
+    </span>
   </div>
 );
 

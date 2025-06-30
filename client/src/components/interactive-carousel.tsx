@@ -192,7 +192,7 @@ export default function InteractiveCarousel() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-center mt-4 lg:mt-0">
+                  <div className="flex justify-center mt-0">
                     <div className="w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-white/10 rounded-2xl sm:rounded-3xl flex items-center justify-center backdrop-blur-sm">
                       <IconComponent className="h-16 w-16 sm:h-24 sm:w-24 lg:h-32 lg:w-32 opacity-80" />
                     </div>
