@@ -1,59 +1,79 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizProgress } from "@/components/quiz-progress";
 import { QuestionCard } from "@/components/question-card";
 import { calculateResult } from "@/lib/result-calculator";
-import { QuizChoice } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+
+// 상수 분리
+const QUIZ_QUESTIONS = [
+  { question: "나는 새로운 사람을 만나는 것이 즐겁다.", choices: ["그렇다", "보통이다", "아니다"] },
+  { question: "계획적으로 움직이는 것을 좋아한다.", choices: ["그렇다", "보통이다", "아니다"] },
+  { question: "감정 표현에 솔직한 편이다.", choices: ["그렇다", "보통이다", "아니다"] },
+];
+
+const ANSWER_TYPES = ["teto", "neutral", "egen"] as const;
+
+// 타입 정의
+type AnswerType = typeof ANSWER_TYPES[number];
+type QuizQuestion = typeof QUIZ_QUESTIONS[number];
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<AnswerType[]>([]);
 
-  // 임시 하드코딩된 질문 데이터
-  const quizQuestions = [
-    { question: "나는 새로운 사람을 만나는 것이 즐겁다.", choices: ["그렇다", "보통이다", "아니다"] },
-    { question: "계획적으로 움직이는 것을 좋아한다.", choices: ["그렇다", "보통이다", "아니다"] },
-    { question: "감정 표현에 솔직한 편이다.", choices: ["그렇다", "보통이다", "아니다"] },
-  ];
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
+  // 메모이제이션된 값들
+  const currentQuestion = useMemo(() => 
+    QUIZ_QUESTIONS[currentQuestionIndex], 
+    [currentQuestionIndex]
+  );
 
-  const goBack = () => {
+  const isLastQuestion = useMemo(() => 
+    currentQuestionIndex === QUIZ_QUESTIONS.length - 1,
+    [currentQuestionIndex]
+  );
+
+  // 콜백 함수들
+  const goBack = useCallback(() => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
       setAnswers(prev => prev.slice(0, -1));
     } else {
       setLocation("/gender-select");
     }
-  };
+  }, [currentQuestionIndex, setLocation]);
 
-  const handleAnswer = (choiceIndex: number) => {
-    // Map choice index to answer type (0=teto, 1=neutral, 2=egen for most questions)
-    const answerTypes = ["teto", "neutral", "egen"];
-    const answerType = answerTypes[choiceIndex] || "neutral";
-    const newAnswers = [...answers, answerType];
-    setAnswers(newAnswers);
-
-    // Add a small delay for the animation effect
-    setTimeout(() => {
+  const handleAnswer = useCallback((choiceIndex: number) => {
+    const answerType = ANSWER_TYPES[choiceIndex] || "neutral";
+    
+    setAnswers(prev => {
+      const newAnswers = [...prev, answerType];
+      
+      // 마지막 질문인 경우 결과 처리
       if (isLastQuestion) {
-        // Store answers in sessionStorage for result calculation
         sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
-        // Calculate result and navigate to result page
         const result = calculateResult(newAnswers);
-        setLocation(`/result?type=${result.type}`);
-      } else {
-        setCurrentQuestionIndex(prev => prev + 1);
+        setTimeout(() => {
+          setLocation(`/result?type=${result.type}`);
+        }, 500);
       }
-    }, 500);
-  };
+      
+      return newAnswers;
+    });
+
+    // 마지막 질문이 아닌 경우 다음 질문으로
+    if (!isLastQuestion) {
+      setTimeout(() => {
+        setCurrentQuestionIndex(prev => prev + 1);
+      }, 500);
+    }
+  }, [isLastQuestion, setLocation]);
 
   if (!currentQuestion) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">로딩중...</div>;
   }
 
   return (
@@ -69,10 +89,12 @@ export default function Quiz() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
+      
       <QuizProgress
         currentQuestion={currentQuestionIndex + 1}
-        totalQuestions={quizQuestions.length}
+        totalQuestions={QUIZ_QUESTIONS.length}
       />
+      
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestionIndex}
