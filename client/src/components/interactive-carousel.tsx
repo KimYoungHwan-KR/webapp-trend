@@ -43,7 +43,7 @@ const slides: CarouselSlide[] = [
     title: "지속가능한 라이프스타일",
     description:
       "제로웨이스트부터 친환경 소비까지, 지구를 지키는 새로운 트렌드와 실천 방법들을 소개합니다.",
-    category: "환경 이슈",
+    category: "유튜브",
     views: "1.8만",
     comments: "950",
     shares: "670",
@@ -55,7 +55,7 @@ const slides: CarouselSlide[] = [
     title: "K-푸드 열풍",
     description:
       "전 세계를 사로잡은 한국 음식! 김치부터 K-BBQ까지, 글로벌 푸드 트렌드를 이끄는 한국의 맛을 탐험해보세요.",
-    category: "푸드 트렌드",
+    category: "뉴스",
     views: "3.1만",
     comments: "1.5천",
     shares: "1.2천",
